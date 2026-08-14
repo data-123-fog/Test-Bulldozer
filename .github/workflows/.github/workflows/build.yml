@@ -1,0 +1,38 @@
+name: Build My App
+
+# Запускать бульдозер при каждом пуше в ветку main
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    # Берем виртуальный комп на Windows
+    runs-on: windows-latest
+
+    steps:
+    # 1. Скачиваем твой код на виртуальный комп
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 2. Устанавливаем Python
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    # 3. Ставим программу для сборки (PyInstaller)
+    - name: Install PyInstaller
+      run: pip install pyinstaller
+
+    # 4. Собираем сам .exe файл
+    - name: Build EXE
+      run: pyinstaller --onefile main.py
+
+    # 5. Сохраняем готовый файл, чтобы ты мог его скачать
+    - name: Upload result
+      uses: actions/upload-artifact@v3
+      with:
+        name: Compiled-App
+        path: dist/main.exe
+        
