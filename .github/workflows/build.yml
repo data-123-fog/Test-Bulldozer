@@ -1,4 +1,4 @@
-name: Build App
+name: Build Android APK
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -16,15 +16,21 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install PyInstaller
-      run: pip install pyinstaller
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ccache git libffi-dev build-essential python3-dev libssl-dev libsqlite3-dev
+        pip install buildozer cython
 
-    - name: Build EXE
-      run: pyinstaller --onefile --noconfirm main.py
+    - name: Build APK with Buildozer
+      run: |
+        buildozer init
+        sed -i 's/requirements = python3,kivy/requirements = python3,kivy/' buildozer.spec
+        buildozer -v android debug
 
-    - name: Upload Artifact
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: My-Compiled-App
-        path: dist/main.exe
+        name: My-Android-App
+        path: bin/*.apk
         
